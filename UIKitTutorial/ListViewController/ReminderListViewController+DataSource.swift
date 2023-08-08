@@ -8,8 +8,11 @@
 import UIKit
 
 extension ReminderListViewController {
-    func cellRegistrationHandler(cell: UICollectionViewListCell, indexPath: IndexPath, id: String) {
-        let reminder = Reminder.sampleData[indexPath.item]
+    typealias DataSource = UICollectionViewDiffableDataSource<Int, Reminder.ID>
+    typealias Snapshot = NSDiffableDataSourceSnapshot<Int, Reminder.ID>
+
+    func cellRegistrationHandler(cell: UICollectionViewListCell, indexPath: IndexPath, id: Reminder.ID) {
+        let reminder = reminder(withId: id)
         var contentConfiguration = cell.defaultContentConfiguration()
         contentConfiguration.text = reminder.title
         contentConfiguration.secondaryText = reminder.dueDate.dayAndTimeText
@@ -18,18 +21,29 @@ extension ReminderListViewController {
         cell.contentConfiguration = contentConfiguration
 
         var doneButtonConfiguration = doneButtonConfiguration(for: reminder)
-          doneButtonConfiguration.tintColor = .todayListCellDoneButtonTint
-          cell.accessories = [
-              .customView(configuration: doneButtonConfiguration), .disclosureIndicator(displayed: .always)
-          ]
+        doneButtonConfiguration.tintColor = .todayListCellDoneButtonTint
+        cell.accessories = [
+            .customView(configuration: doneButtonConfiguration), .disclosureIndicator(displayed: .always)
+        ]
 
         var backgroundConfiguration = UIBackgroundConfiguration.listGroupedCell()
         backgroundConfiguration.backgroundColor = .todayListCellBackground
         cell.backgroundConfiguration = backgroundConfiguration
     }
 
+    // withId は 名前付き引数的な感じ
+    func reminder(withId id: Reminder.ID) -> Reminder {
+        let index = reminders.indexOfReminder(withId: id)
+        return reminders[index]
+    }
+
+    func updateReminder(_ reminder: Reminder) {
+        let index = reminders.indexOfReminder(withId: reminder.id)
+        reminders[index] = reminder
+    }
+
     private func doneButtonConfiguration(for reminder: Reminder)
-    -> UICellAccessory.CustomViewConfiguration
+        -> UICellAccessory.CustomViewConfiguration
     {
         let symbolName = reminder.isComplete ? "circle.fill" : "circle"
         let symbolConfiguration = UIImage.SymbolConfiguration(textStyle: .title1)
