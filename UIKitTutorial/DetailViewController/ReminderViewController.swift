@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ReminderViewController: UICollectionViewController{
+class ReminderViewController: UICollectionViewController {
     var reminder: Reminder
 
     init(reminder: Reminder) {
@@ -18,7 +18,17 @@ class ReminderViewController: UICollectionViewController{
         super.init(collectionViewLayout: listLayout)
     }
 
-    required init?(coder: NSCoder){
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
         fatalError()
+    }
+
+    func text(for row: Row) -> String? {
+        switch row {
+            case .date: return reminder.dueDate.dayText
+            case .notes: return reminder.notes
+            case .time: return reminder.dueDate.formatted(date: .omitted, time: .shortened)
+            case .title: return reminder.title
+        }
     }
 }
